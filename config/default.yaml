@@ -1,0 +1,16 @@
+# Paths are relative to the project root (the parent of this config directory).
+seed: 42
+data:
+  raw_path: data/raw/steam-200k.csv
+  processed_dir: data/processed
+  min_games_per_user: 5
+baselines:
+  artifacts_dir: data/baselines
+  results_dir: results
+  factors: [32, 64]
+  regularization: [0.01, 0.1]
+  alpha: [10, 40]
+  iterations: 30
+evaluation:
+  n_negatives: 100
+  popularity_exponent: 0.75

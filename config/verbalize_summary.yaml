@@ -1,0 +1,15 @@
+# Summary-header ablation: same split, K, and tokenizer as verbalize.yaml; separate outputs.
+pipeline_config: config/default.yaml
+artifacts_dir: data/verbalized_summary
+results_dir: results/verbalization_summary
+strategy: top_hours_summary
+k: 15
+max_tokens: 512
+review_samples: 10
+tokenizer:
+  repository: google/gemma-4-E2B-it
+  revision: 3e22461f65e89153144f8adb70e3b8c2cc9845a7
+  directory: data/tokenizers/gemma-4-E2B-it/3e22461f65e89153144f8adb70e3b8c2cc9845a7
+  sha256:
+    tokenizer.json: cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f
+    tokenizer_config.json: 9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633

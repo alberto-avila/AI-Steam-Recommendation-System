@@ -1,0 +1,20 @@
+# Downloaded data and reproducible pipeline outputs stay local.
+/data/raw/
+/data/processed/
+/data/baselines/
+/data/verbalized/
+/data/verbalized_summary/
+/data/tokenizers/
+.venv/
+.tmp/
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+.env
+.env.*
+!.env.example
