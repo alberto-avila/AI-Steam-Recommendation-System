@@ -1,0 +1,164 @@
+{
+  "k": 15,
+  "max_tokens": 512,
+  "sample_user_ids": [
+    "53258793",
+    "92904111",
+    "153821154",
+    "67965357",
+    "59756932",
+    "242523654",
+    "26027937",
+    "61632730",
+    "182399789",
+    "62990992"
+  ],
+  "seed": 42,
+  "splits": {
+    "test": {
+      "excluded_from_source": 0,
+      "games_omitted_by_k": 29710,
+      "histories_capped_by_k": 940,
+      "history_games": {
+        "count": 2436,
+        "max": 497,
+        "mean": 22.716748768472907,
+        "median": 11.0,
+        "min": 4,
+        "p25": 6.0,
+        "p75": 24.0,
+        "p90": 56.0,
+        "p99": 164.6500000000001,
+        "std": 32.79858769744111
+      },
+      "input_tokens": {
+        "count": 2436,
+        "max": 277,
+        "mean": 152.54556650246306,
+        "median": 158.0,
+        "min": 70,
+        "p25": 103.0,
+        "p75": 199.0,
+        "p90": 210.0,
+        "p99": 231.0,
+        "std": 49.606944160223456
+      },
+      "omitted_by_k": {
+        "count": 2436,
+        "max": 482,
+        "mean": 12.196223316912972,
+        "median": 0.0,
+        "min": 0,
+        "p25": 0.0,
+        "p75": 9.0,
+        "p90": 41.0,
+        "p99": 149.6500000000001,
+        "std": 30.772926260964738
+      },
+      "over_budget": 0,
+      "rendered_games": {
+        "count": 2436,
+        "max": 15,
+        "mean": 10.520525451559934,
+        "median": 11.0,
+        "min": 4,
+        "p25": 6.0,
+        "p75": 15.0,
+        "p90": 15.0,
+        "p99": 15.0,
+        "std": 4.416901675785395
+      },
+      "text_tokens": {
+        "count": 2436,
+        "max": 276,
+        "mean": 151.54556650246306,
+        "median": 157.0,
+        "min": 69,
+        "p25": 102.0,
+        "p75": 198.0,
+        "p90": 209.0,
+        "p99": 230.0,
+        "std": 49.606944160223456
+      },
+      "users": 2436
+    },
+    "validation": {
+      "excluded_from_source": 0,
+      "games_omitted_by_k": 28770,
+      "histories_capped_by_k": 886,
+      "history_games": {
+        "count": 2436,
+        "max": 496,
+        "mean": 21.716748768472907,
+        "median": 10.0,
+        "min": 3,
+        "p25": 5.0,
+        "p75": 23.0,
+        "p90": 55.0,
+        "p99": 163.6500000000001,
+        "std": 32.79858769744111
+      },
+      "input_tokens": {
+        "count": 2436,
+        "max": 277,
+        "mean": 145.933908045977,
+        "median": 147.0,
+        "min": 62,
+        "p25": 92.0,
+        "p75": 198.0,
+        "p90": 210.0,
+        "p99": 230.0,
+        "std": 53.62489204920372
+      },
+      "omitted_by_k": {
+        "count": 2436,
+        "max": 481,
+        "mean": 11.810344827586206,
+        "median": 0.0,
+        "min": 0,
+        "p25": 0.0,
+        "p75": 8.0,
+        "p90": 40.0,
+        "p99": 148.6500000000001,
+        "std": 30.532442430434443
+      },
+      "over_budget": 0,
+      "rendered_games": {
+        "count": 2436,
+        "max": 15,
+        "mean": 9.9064039408867,
+        "median": 10.0,
+        "min": 3,
+        "p25": 5.0,
+        "p75": 15.0,
+        "p90": 15.0,
+        "p99": 15.0,
+        "std": 4.816955723049256
+      },
+      "text_tokens": {
+        "count": 2436,
+        "max": 276,
+        "mean": 144.933908045977,
+        "median": 146.0,
+        "min": 61,
+        "p25": 91.0,
+        "p75": 197.0,
+        "p90": 209.0,
+        "p99": 229.0,
+        "std": 53.62489204920372
+      },
+      "users": 2436
+    }
+  },
+  "strategy": "top_hours_summary",
+  "token_contract": "one BOS + plain history; no EOS, chat template, padding, or token truncation",
+  "tokenizer": {
+    "directory": "data/tokenizers/gemma-4-E2B-it/3e22461f65e89153144f8adb70e3b8c2cc9845a7",
+    "repository": "google/gemma-4-E2B-it",
+    "revision": "3e22461f65e89153144f8adb70e3b8c2cc9845a7",
+    "sha256": {
+      "tokenizer.json": "cc8d3a0ce36466ccc1278bf987df5f71db1719b9ca6b4118264f45cb627bfe0f",
+      "tokenizer_config.json": "9f4fec4b1dc6ecddf8f4a92e9caea5971c0e67d81309f3f9066a2bee8c362633"
+    }
+  }
+}
