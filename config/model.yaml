@@ -1,0 +1,23 @@
+# Checkpoint 4: model definition and forward-pass smoke test.
+# Paths are relative to the project root (the parent of this config directory).
+seed: 42
+# Prompts from every listed strategy contribute to the pruned token vocabulary.
+verbalize_configs: [config/verbalize.yaml, config/verbalize_summary.yaml]
+# Smoke test uses the longer summary prompts so memory is measured at the worst case.
+smoke_prompts: data/verbalized_summary/validation_histories.jsonl
+artifacts_dir: data/model
+results_dir: results/model
+backbone:
+  repository: google/gemma-4-E2B-it
+  # Same commit as the verbalizer's tokenizer, so token IDs and weights match.
+  revision: 3e22461f65e89153144f8adb70e3b8c2cc9845a7
+pooling: mean          # mean | last  (ablation flag)
+item_dim: 128
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj]
+smoke:
+  batch_sizes: [4, 8, 16, 32]
+  n_negatives: 16

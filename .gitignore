@@ -4,6 +4,7 @@
 /data/baselines/
 /data/verbalized/
 /data/verbalized_summary/
+/data/model/
 /data/tokenizers/
 .venv/
 .tmp/
