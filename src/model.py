@@ -274,9 +274,16 @@ def parameter_counts(model: nn.Module) -> dict[str, int]:
 # Checkpoint 4 smoke test
 # ---------------------------------------------------------------------------
 
-def build_model(config: ModelConfig) -> tuple[GenRecModel, GemmaTokenizer, PrunedVocab, int]:
+def build_model(config: ModelConfig, extra_texts: Iterable[str] = (),
+                kept_ids: Sequence[int] | None = None) -> tuple[GenRecModel, GemmaTokenizer, PrunedVocab, int]:
+    """Build the full ranker. `extra_texts` (e.g. training prompts) extend the vocabulary;
+    `kept_ids` restores a saved vocabulary exactly when reloading a checkpoint."""
     tokenizer, pad_id = load_tokenizer(config)
-    vocab = build_vocab(vocabulary_texts(config), tokenizer, special_ids=[pad_id, tokenizer.bos_id])
+    if kept_ids is not None:
+        vocab = PrunedVocab(kept_ids, tokenizer.backend.get_vocab_size())
+    else:
+        texts = [*vocabulary_texts(config), *extra_texts]
+        vocab = build_vocab(texts, tokenizer, special_ids=[pad_id, tokenizer.bos_id])
     LOGGER.info("Pruned vocabulary: %s of %s tokens", len(vocab), tokenizer.backend.get_vocab_size())
     verbalize = load_verbalize_config(config.verbalize_configs[0])
     mapping = json.loads((verbalize["data"].processed_dir / "game_mapping.json").read_text(encoding="utf-8"))
