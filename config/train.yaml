@@ -1,0 +1,24 @@
+# Checkpoint 5/6: training loop. Paths are relative to the project root.
+model_config: config/model.yaml
+# Reviewed prompt format; training prompts are rendered with the same strategy and K.
+verbalize_config: config/verbalize_summary.yaml
+artifacts_dir: data/training
+results_dir: results/training
+# Development protocol, as in the ALS baseline: fit on validation_fit rows, select on
+# the fixed validation candidates. (Final test evaluation is the next checkpoint.)
+loss: sampled            # sampled (1 positive + N negatives) | full (softmax over catalog)
+n_negatives: 16
+popularity_exponent: 0.75
+batch_size: 16
+grad_accum: 2            # effective batch 32
+lr: 2.0e-4               # LoRA adapters
+head_lr: 1.0e-3          # projection + item embeddings, trained from scratch
+weight_decay: 0.0
+warmup_ratio: 0.03
+epochs: 1
+max_grad_norm: 1.0
+eval_every_steps: 400    # optimizer steps between validation runs
+eval_batch_size: 32
+overfit:
+  n_examples: 100
+  epochs: 30

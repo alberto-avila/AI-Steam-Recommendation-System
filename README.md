@@ -4,10 +4,11 @@ A small Steam recommendation research project exploring an LLM ranker over verba
 play histories. The planned architecture and build checkpoints are in
 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md).
 
-**Current status: data, baseline, verbalizer, and model forward-pass checkpoints
+**Current status: data, baseline, verbalizer, model, and training-loop checkpoints
 implemented.** Popularity and validation-tuned CPU ALS have measured results. Prompts
-were reviewed. The Gemma 4 E2B ranker runs forward and backward on an 8 GB GPU. The
-next checkpoint is the training loop; no LLM result exists yet.
+were reviewed. The Gemma 4 E2B ranker trains on an 8 GB GPU and memorizes a 100-example
+overfit set. The next step is the full training run; no LLM recommendation result
+exists yet.
 
 Open [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) for the executed EDA walkthrough:
 every filtering step, real removed/merged records, user-history and hours distributions,
@@ -306,7 +307,46 @@ embeddings, and absent from all frozen parameters. Full report: [`results/model/
 Planned training setting: batch 16 × 2 accumulation steps (effective 32), leaving
 headroom for the display and longer training prompts. `tests/test_model.py` adds
 CPU-only checks for pooling, padding invariance, vocabulary remapping, candidate/catalog
-score agreement, and frozen-parameter gradients (59 tests total).
+score agreement, and frozen-parameter gradients.
+
+## Training loop (overfit checkpoint)
+
+```powershell
+.\.venv\Scripts\python.exe -m src.train --config config/train.yaml --overfit               # sampled loss
+.\.venv\Scripts\python.exe -m src.train --config config/train.yaml --overfit --loss full   # catalog softmax
+```
+
+[`src/train.py`](src/train.py) builds **52,902 training examples**, one per
+validation-fit interaction. Each game becomes the target once and is removed from its own
+prompt, along with the user's validation and test games. This matches how evaluation
+targets were drawn: uniformly from a user's games. Prompts use the reviewed
+`top_hours_summary` format with K=15. [`config/train.yaml`](config/train.yaml) holds:
+
+- **Loss** (`sampled` | `full`): 1 positive + 16 popularity^0.75 negatives drawn from games
+  the user never played, or softmax over the whole catalog with the user's other positives
+  and never-fitted games masked out.
+- **Optimizer:** AdamW, LoRA lr 2e-4, head lr 1e-3 (the projection and item embeddings
+  start from random init), cosine schedule with 3% warmup, batch 16 × 2 accumulation,
+  gradient clipping 1.0.
+- **Validation** rebuilds the ALS baseline's fixed validation candidates and fails unless
+  they are identical. It then scores each user once over the whole catalog and reuses
+  `src.evaluate` unchanged through a `score(user_id, game_ids)` adapter.
+
+Overfit check: 100 random training examples, 30 epochs (120 optimizer steps). Metrics are
+on those same 100 examples, ranked against the whole eligible catalog:
+
+| Loss | Before: median rank | After: median rank | After: Recall@10 | After: MRR | After: catalog loss | Time | Peak GPU |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| sampled | 1,473 | 1 | 1.00 | 0.889 | 0.730 | 10.6 min | 3.8 GB |
+| full | 1,473 | 1 | 1.00 | 1.000 | 0.00003 | 10.7 min | 3.8 GB |
+
+Both modes memorize the tiny set, so the gradients, masking, and optimizer plumbing work.
+The sampled loss reaches ~0 on its own 17 candidates, yet full-catalog MRR stops at
+0.889: beating 16 sampled negatives does not mean beating all 3,519 eligible games. Full
+softmax costs the same here (~6 examples/s, one extra 128 × 3,542 matmul). At ~6
+examples/s, one epoch of 52,902 examples takes about 2.5 hours on this laptop GPU.
+`tests/test_train.py` adds CPU checks for example construction, target and holdout
+exclusion, seeded negatives, masking, and the scorer adapter (67 tests total).
 
 ## Preparation rules
 
