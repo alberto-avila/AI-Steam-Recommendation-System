@@ -1,0 +1,113 @@
+{
+  "seed": 42,
+  "pooling": "mean",
+  "item_dim": 128,
+  "hidden_size": 1536,
+  "n_items": 3542,
+  "pruned_vocab": 5968,
+  "original_vocab": 262144,
+  "parameters": {
+    "lora": 5357568,
+    "projection": 196736,
+    "item_embedding": 453376,
+    "other_trainable": 0,
+    "frozen": 1939746048
+  },
+  "load_seconds": 10.1,
+  "batches": [
+    {
+      "batch_size": 4,
+      "seq_len": 277,
+      "oom": false,
+      "full_scores_shape": [
+        4,
+        3542
+      ],
+      "sampled_scores_shape": [
+        4,
+        17
+      ],
+      "loss": 3.185530662536621,
+      "loss_finite": true,
+      "grad_norms": {
+        "lora": 23.888092521578074,
+        "projection": 33.99342152476311,
+        "item_embedding": 5.942403793334961
+      },
+      "frozen_params_with_grad": 0,
+      "peak_gb": 1.91,
+      "seconds": 1.72
+    },
+    {
+      "batch_size": 8,
+      "seq_len": 277,
+      "oom": false,
+      "full_scores_shape": [
+        8,
+        3542
+      ],
+      "sampled_scores_shape": [
+        8,
+        17
+      ],
+      "loss": 3.720738649368286,
+      "loss_finite": true,
+      "grad_norms": {
+        "lora": 17.223173102363944,
+        "projection": 27.13513657450676,
+        "item_embedding": 4.590424060821533
+      },
+      "frozen_params_with_grad": 0,
+      "peak_gb": 2.63,
+      "seconds": 2.07
+    },
+    {
+      "batch_size": 16,
+      "seq_len": 277,
+      "oom": false,
+      "full_scores_shape": [
+        16,
+        3542
+      ],
+      "sampled_scores_shape": [
+        16,
+        17
+      ],
+      "loss": 3.1611509323120117,
+      "loss_finite": true,
+      "grad_norms": {
+        "lora": 13.280746147036552,
+        "projection": 19.55726483464241,
+        "item_embedding": 3.2824437618255615
+      },
+      "frozen_params_with_grad": 0,
+      "peak_gb": 4.07,
+      "seconds": 4.37
+    },
+    {
+      "batch_size": 32,
+      "seq_len": 277,
+      "oom": false,
+      "full_scores_shape": [
+        32,
+        3542
+      ],
+      "sampled_scores_shape": [
+        32,
+        17
+      ],
+      "loss": 3.483327627182007,
+      "loss_finite": true,
+      "grad_norms": {
+        "lora": 12.089727696031332,
+        "projection": 14.831344917416573,
+        "item_embedding": 2.319643259048462
+      },
+      "frozen_params_with_grad": 0,
+      "peak_gb": 6.95,
+      "seconds": 8.78
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 5060 Laptop GPU",
+  "gpu_total_gb": 7.96
+}

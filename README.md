@@ -4,10 +4,10 @@ A small Steam recommendation research project exploring an LLM ranker over verba
 play histories. The planned architecture and build checkpoints are in
 [PROJECT_CONTEXT.md](PROJECT_CONTEXT.md).
 
-**Current status: data, baseline, and verbalizer checkpoints implemented.** Popularity
-and validation-tuned CPU ALS have measured results. Training-only prompts, leakage
-checks, and real tokenizer lengths are ready for review. The next checkpoint is the
-model forward pass, after prompt review; LLM training has not started.
+**Current status: data, baseline, verbalizer, and model forward-pass checkpoints
+implemented.** Popularity and validation-tuned CPU ALS have measured results. Prompts
+were reviewed. The Gemma 4 E2B ranker runs forward and backward on an 8 GB GPU. The
+next checkpoint is the training loop; no LLM result exists yet.
 
 Open [`notebooks/01_eda.ipynb`](notebooks/01_eda.ipynb) for the executed EDA walkthrough:
 every filtering step, real removed/merged records, user-history and hours distributions,
@@ -256,6 +256,57 @@ token encoding, no silent truncation, both context populations, fresh-run consis
 cache rejection, and the earlier data/baseline checks. The executed third notebook
 also reconstructs all **4,872 prompts** with the actual pinned tokenizer and checks
 that all 20 existing data, baseline, and result files remain byte-identical.
+
+## Model definition (forward-pass checkpoint)
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+.\.venv\Scripts\python.exe -m pip install -e ".[model]"
+.\.venv\Scripts\python.exe -m src.model --config config/model.yaml --smoke
+```
+
+The CUDA 12.8 build of PyTorch is required for RTX 50-series (Blackwell, sm_120) GPUs.
+The first run downloads the Gemma 4 E2B weights (10.2 GB) at the commit pinned for the
+tokenizer, so token IDs and weights always match.
+
+[`src/model.py`](src/model.py) mirrors the paper's scoring head:
+
+```
+verbalized history -> Gemma 4 E2B (4-bit NF4 + LoRA) -> mean-pooled h [1536] -> Linear -> u [128]
+game IDs           -> nn.Embedding(3542, 128)                                  -> e [3542, 128]
+scores = u @ e.T   (whole catalog, one prefill pass, no token generation)
+```
+
+- **Text-only backbone.** Gemma 4 is multimodal; only `model.language_model.*` is loaded.
+  Vision and audio towers are dropped.
+- **Pruned vocabulary.** E2B keeps about 2.3B of its parameters in embedding tables
+  (262,144 tokens × 35 per-layer embeddings). 4-bit quantization does not compress
+  embeddings, and PEFT's k-bit preparation upcasts them to fp32: the standard load needs
+  **11.15 GB** of weights on an 8 GB card. We never generate text, so only rows for
+  tokens our prompts use are kept (**5,968 tokens**, from every prompt plus each title
+  in list context). Weights drop to **1.17 GB**. Hidden states are **bit-identical** to the full-vocabulary
+  model (max absolute difference 0.0 on real prompts). Unknown tokens raise an error
+  rather than being silently mapped.
+- **Trainable parameters:** 5.36M LoRA (rank 16, q/k/v/o), 0.20M projection, 0.45M item
+  embeddings; 1.94B frozen. The item tower is an ID embedding trained from scratch, as in
+  the paper, so it cannot score unseen games (see limitations).
+- **Pooling** is a config flag (`mean` | `last`) for later ablation; right padding, fp32 head.
+
+Smoke test on an RTX 5060 Laptop (8 GB): longest prompts (277 tokens), forward + backward
+with gradient checkpointing. Gradients are nonzero for LoRA, projection, and item
+embeddings, and absent from all frozen parameters. Full report: [`results/model/smoke.json`](results/model/smoke.json).
+
+| Batch size | Peak GPU memory | Seconds / step |
+| ---: | ---: | ---: |
+| 4 | 1.91 GB | 1.7 |
+| 8 | 2.63 GB | 2.1 |
+| 16 | 4.07 GB | 4.4 |
+| 32 | 6.95 GB | 8.8 |
+
+Planned training setting: batch 16 × 2 accumulation steps (effective 32), leaving
+headroom for the display and longer training prompts. `tests/test_model.py` adds
+CPU-only checks for pooling, padding invariance, vocabulary remapping, candidate/catalog
+score agreement, and frozen-parameter gradients (59 tests total).
 
 ## Preparation rules
 
